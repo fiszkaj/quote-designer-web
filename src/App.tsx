@@ -341,7 +341,7 @@ export default function App() {
                 <img
                   src={previews[index]}
                   alt={`Quote ${index + 1} preview`}
-                  style={{ width: "100%", borderRadius: 8, marginBottom: 10 }}
+                  style={{ width: "100%", maxWidth: 470, display: "block", margin: "0 auto 10px", borderRadius: 8 }}
                 />
               )}
 
