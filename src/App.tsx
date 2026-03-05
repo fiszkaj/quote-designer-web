@@ -33,8 +33,8 @@ function applyPerspectiveTransform(
 const TEMPLATES = [
   { id: 1, name: "Texture", available: true },
   { id: 2, name: "Billboard", available: true },
-  { id: 3, name: "Coming Soon", available: false },
-  { id: 4, name: "Coming Soon", available: false },
+  { id: 3, name: "Highlight Book", available: true },
+  { id: 4, name: "Typewriter", available: true },
   { id: 5, name: "Coming Soon", available: false },
 ];
 
@@ -45,9 +45,13 @@ async function renderQuote(quote: string, author: string, templateId: number): P
   canvas.height = 1350;
   const ctx = canvas.getContext("2d")!;
 
-  const bgUrl = templateId === 1
-    ? "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-1.png"
-    : "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-2.png";
+  const bgUrls: Record<number, string> = {
+  1: "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-1.png",
+  2: "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-2.png",
+  3: "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-3.png",
+  4: "https://raw.githubusercontent.com/fiszkaj/quote-app-assets/main/background-4.png",
+};
+const bgUrl = bgUrls[templateId] || bgUrls[1];
 
   const img = new Image();
   img.crossOrigin = "anonymous";
@@ -140,7 +144,115 @@ async function renderQuote(quote: string, author: string, templateId: number): P
     applyPerspectiveTransform(ctx, textCanvas, [
       [145, 499], [900, 564], [135, 928], [940, 933]
     ]);
+
+} else if (templateId === 3) {
+  // Highlight Book template
+  const fontSize = 27 * 1.333; // pt to px
+  const lineHeight = fontSize * 1.5;
+  const maxWidth = 580;
+  const leftMargin = 108;
+  const highlightColor = "#e9ff2e";
+  const xHeight = fontSize;
+  const highlightPadding = 3;
+
+  ctx.font = `${fontSize}px "EB Garamond", Georgia, serif`;
+  ctx.textAlign = "left";
+  ctx.letterSpacing = "0px";
+
+  // Word wrap
+  const words = quote.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
   }
+  lines.push(currentLine);
+
+  // Position in upper third
+  const startY = 500;
+
+  // Draw highlights first (x-height only)
+  ctx.globalAlpha = 0.7;
+  ctx.fillStyle = highlightColor;
+  lines.forEach((line, i) => {
+    const lineWidth = ctx.measureText(line).width;
+    ctx.fillRect(
+      leftMargin - highlightPadding,
+      startY + i * lineHeight - xHeight * 0.85,
+      lineWidth + highlightPadding * 2,
+      xHeight + highlightPadding * 2
+    );
+  });
+
+  // Draw text on top
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#1a1a1a";
+  lines.forEach((line, i) => {
+    ctx.fillText(line, leftMargin, startY + i * lineHeight);
+  });
+
+  // Author name — title case, em dash, same font
+  if (author.trim()) {
+    const titleCase = author.trim().replace(/\w\S*/g, (w) =>
+      w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+    );
+    const authorText = `— ${titleCase}`;
+    const authorY = startY + lines.length * lineHeight + lineHeight;
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#1a1a1a";
+    ctx.letterSpacing = "0px";
+    ctx.font = `${fontSize}px "EB Garamond", Georgia, serif`;
+    ctx.fillText(authorText, leftMargin, authorY);
+  }
+
+  } else if (templateId === 4) {
+  const fontSize = 24 * 1.333;
+  const lineHeight = fontSize * 1.6;
+  const maxWidth = 600;
+  const startY = 80 + fontSize;
+
+  ctx.font = `${fontSize}px "Special Elite", serif`;
+  ctx.fillStyle = "#493f3e";
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "0px";
+
+  // Word wrap
+  const words = quote.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  lines.push(currentLine);
+
+  // Draw quote
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 540, startY + i * lineHeight);
+  });
+
+  // Author name
+  if (author.trim()) {
+    const titleCase = author.trim().replace(/\w\S*/g, (w) =>
+      w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+    );
+    const authorY = startY + lines.length * lineHeight + lineHeight;
+    ctx.fillText(`— ${titleCase}`, 540, authorY);
+  }
+}
 
   return canvas.toDataURL("image/png");
 }
@@ -151,7 +263,7 @@ export default function App() {
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
   const [quotes, setQuotes] = useState<string[]>([]);
-  const [templates, setTemplates] = useState<number[]>([1, 2, 1, 2, 1]);
+  const [templates, setTemplates] = useState<number[]>([1, 2, 3, 4, 1]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -169,11 +281,22 @@ export default function App() {
       "Barlow Condensed",
       "url(https://fonts.gstatic.com/s/barlowcondensed/v12/HTxwL3I-JCGChYJ8VI-L6OO_au7B4873.woff2)"
     );
-    Promise.all([libreBaskerville.load(), latoBold.load(), barlowCondensed.load()]).then(([f1, f2, f3]) => {
-      document.fonts.add(f1);
-      document.fonts.add(f2);
-      document.fonts.add(f3);
-    });
+    const ebGaramond = new FontFace(
+      "EB Garamond",
+      "url(https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2)"
+    );
+    const specialElite = new FontFace(
+      "Special Elite",
+      "url(https://fonts.gstatic.com/s/specialelite/v18/XLYgIZbkc46tvqgoxjTotC-GY-k.woff2)"
+    );
+    Promise.all([libreBaskerville.load(), latoBold.load(), barlowCondensed.load(), ebGaramond.load(), specialElite.load()])
+      .then(([f1, f2, f3, f4, f5]) => {
+        document.fonts.add(f1);
+        document.fonts.add(f2);
+        document.fonts.add(f3);
+        document.fonts.add(f4);
+        document.fonts.add(f5);
+      });
   }, []);
 
   const extractQuotes = async () => {
@@ -191,9 +314,10 @@ export default function App() {
       );
       const data = await response.json();
       setQuotes(data.quotes);
-      setTemplates([1, 2, 1, 2, 1]);
+      setTemplates([1, 2, 3, 4, 1]);
       setStep("results");
-      generatePreviews(data.quotes, [1, 2, 1, 2, 1]);
+      await document.fonts.ready;
+      generatePreviews(data.quotes, [1, 2, 3, 4, 1]);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
