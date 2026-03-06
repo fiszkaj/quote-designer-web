@@ -358,36 +358,71 @@ export default function App() {
 
       {/* STEP 1 — INPUT */}
       {step === "input" && (
-        <div>
-          <label style={{ fontSize: 14, fontWeight: 600, display: "block", marginBottom: 6 }}>
-            Your content
-          </label>
-          <textarea
-            placeholder="Paste your transcript, article or podcast notes here..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            style={{ width: "100%", padding: 12, fontSize: 14, boxSizing: "border-box", marginBottom: 16, borderRadius: 8, border: "1px solid #ddd", resize: "vertical" }}
-          />
-          <label style={{ fontSize: 14, fontWeight: 600, display: "block", marginBottom: 6 }}>
-            Author name <span style={{ fontWeight: 400, color: "#999" }}>(optional)</span>
-          </label>
-          <input
-            placeholder="e.g. Juliette Fiszka"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            style={{ width: "100%", padding: 12, fontSize: 14, boxSizing: "border-box", marginBottom: 24, borderRadius: 8, border: "1px solid #ddd" }}
-          />
-          {error && <p style={{ color: "red", marginBottom: 16 }}>{error}</p>}
-          <button
-            onClick={extractQuotes}
-            disabled={loading || !content.trim()}
-            style={{ width: "100%", padding: 16, background: loading ? "#ccc" : "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 16, cursor: loading ? "not-allowed" : "pointer" }}
-          >
-            {loading ? "Extracting quotes..." : "Extract 5 Quotes"}
-          </button>
-        </div>
-      )}
+  <div>
+    <label style={{ fontSize: 14, fontWeight: 600, display: "block", marginBottom: 6 }}>
+      Your content
+    </label>
+    <p style={{ fontSize: 13, color: "#888", marginBottom: 10 }}>
+      Paste a long-form transcript, article, or podcast notes (minimum 500 characters). The more content, the better the quotes!
+    </p>
+    <textarea
+      placeholder="Paste your transcript or article here... (at least a few paragraphs work best)"
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      rows={10}
+      style={{ width: "100%", padding: 12, fontSize: 14, boxSizing: "border-box", marginBottom: 8, borderRadius: 8, border: "1px solid #ddd", resize: "vertical" }}
+    />
+
+    {/* Character count */}
+    <p style={{ fontSize: 12, color: content.length < 500 ? "#e57373" : "#888", marginBottom: 16, textAlign: "right" }}>
+      {content.length} / 500 characters minimum
+    </p>
+
+    <label style={{ fontSize: 14, fontWeight: 600, display: "block", marginBottom: 6 }}>
+      Author name <span style={{ fontWeight: 400, color: "#999" }}>(optional)</span>
+    </label>
+    <input
+      placeholder="e.g. Juliette Fiszka"
+      value={author}
+      onChange={(e) => setAuthor(e.target.value)}
+      style={{ width: "100%", padding: 12, fontSize: 14, boxSizing: "border-box", marginBottom: 24, borderRadius: 8, border: "1px solid #ddd" }}
+    />
+
+    {error && <p style={{ color: "red", marginBottom: 16 }}>{error}</p>}
+
+    {/* Main CTA */}
+    <button
+      onClick={extractQuotes}
+      disabled={loading || content.length < 500}
+      style={{ width: "100%", padding: 16, background: loading || content.length < 500 ? "#ccc" : "#7c3aed", color: "white", border: "none", borderRadius: 8, fontSize: 16, cursor: loading || content.length < 500 ? "not-allowed" : "pointer", marginBottom: 12 }}
+    >
+      {loading ? "Extracting quotes..." : "Extract 5 Quotes"}
+    </button>
+
+    {/* Try with sample */}
+    <button
+      onClick={() => {
+        setContent(`The most important thing I've learned in building a business is that consistency beats perfection every single time. People wait for the perfect moment, the perfect product, the perfect conditions. But the perfect moment never comes. What comes instead is opportunity — and opportunity rewards the people who show up every day, even when they don't feel like it. I started my business with zero clients, zero revenue, and zero confidence. What I had was a vision and a willingness to do the uncomfortable thing. That willingness to be uncomfortable is the real currency of entrepreneurship. Nobody talks about how many times you have to say your idea out loud before it stops feeling scary. Nobody talks about the emails you send that never get a reply. But those reps — those uncomfortable, unglamorous reps — are what build the muscle. And once you build the muscle, momentum becomes inevitable. The question isn't whether you're ready. The question is whether you're willing.`);
+      }}
+      style={{ width: "100%", padding: 12, background: "white", border: "1px solid #ddd", borderRadius: 8, fontSize: 14, cursor: "pointer", color: "#666", marginBottom: 12 }}
+    >
+      Try with a sample transcript
+    </button>
+
+    {/* Write own quotes */}
+    <button
+      onClick={() => {
+        setQuotes(["", "", "", "", ""]);
+        setTemplates([1, 2, 3, 4, 1]);
+        setStep("results");
+        setPreviews([]);
+      }}
+      style={{ width: "100%", padding: 12, background: "white", border: "1px solid #ddd", borderRadius: 8, fontSize: 14, cursor: "pointer", color: "#666" }}
+    >
+      Write my own quotes instead →
+    </button>
+  </div>
+)}
 
       {/* STEP 2 — RESULTS */}
       {step === "results" && (
