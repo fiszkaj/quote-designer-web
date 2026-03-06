@@ -274,35 +274,10 @@ export default function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const libreBaskerville = new FontFace(
-      "Libre Baskerville",
-      "url(https://fonts.gstatic.com/s/librebaskerville/v14/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNZaxM.woff2)"
-    );
-    const latoBold = new FontFace(
-      "Lato Bold",
-      "url(https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVSwiPGQ.woff2)"
-    );
-    const barlowCondensed = new FontFace(
-      "Barlow Condensed",
-      "url(https://fonts.gstatic.com/s/barlowcondensed/v12/HTxwL3I-JCGChYJ8VI-L6OO_au7B4873.woff2)"
-    );
-    const ebGaramond = new FontFace(
-      "EB Garamond",
-      "url(https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2)"
-    );
-    const specialElite = new FontFace(
-      "Special Elite",
-      "url(https://fonts.gstatic.com/s/specialelite/v18/XLYgIZbkc46tvqgoxjTotC-GY-k.woff2)"
-    );
-    Promise.all([libreBaskerville.load(), latoBold.load(), barlowCondensed.load(), ebGaramond.load(), specialElite.load()])
-      .then(([f1, f2, f3, f4, f5]) => {
-        document.fonts.add(f1);
-        document.fonts.add(f2);
-        document.fonts.add(f3);
-        document.fonts.add(f4);
-        document.fonts.add(f5);
-      });
-  }, []);
+  document.fonts.ready.then(() => {
+    console.log("Fonts ready");
+  });
+}, []);
 
   const extractQuotes = async () => {
     if (!content.trim()) return;
