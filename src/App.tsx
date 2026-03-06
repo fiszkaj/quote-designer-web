@@ -216,7 +216,6 @@ const bgUrl = bgUrls[templateId] || bgUrls[1];
   const fontSize = 24 * 1.333;
   const lineHeight = fontSize * 1.6;
   const maxWidth = 600;
-  const startY = 80 + fontSize;
 
   ctx.font = `${fontSize}px "Special Elite", serif`;
   ctx.fillStyle = "#493f3e";
@@ -238,6 +237,12 @@ const bgUrl = bgUrls[templateId] || bgUrls[1];
     }
   }
   lines.push(currentLine);
+
+  // Now calculate startY from bottom
+  const paperBottom = 460;
+  const authorHeight = author.trim() ? lineHeight * 2 : 0;
+  const totalTextHeight = lines.length * lineHeight;
+  const startY = Math.max(80, paperBottom - totalTextHeight - authorHeight);
 
   // Draw quote
   lines.forEach((line, i) => {
@@ -417,7 +422,7 @@ export default function App() {
             ← Start over
           </button>
 
-          {quotes.map((quote, index) => (
+          {quotes.map((_quote, index) => (
             <div key={index} style={{ marginBottom: 32, padding: 20, border: "1px solid #eee", borderRadius: 12 }}>
               
               {/* Quote number */}
