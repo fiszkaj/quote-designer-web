@@ -147,7 +147,7 @@ const bgUrl = bgUrls[templateId] || bgUrls[1];
 
 } else if (templateId === 3) {
   // Highlight Book template
-  const fontSize = 27 * 1.333; // pt to px
+  const fontSize = 30 * 1.333; // pt to px
   const lineHeight = fontSize * 1.5;
   const maxWidth = 580;
   const leftMargin = 108;
@@ -315,6 +315,7 @@ export default function App() {
   };
 
   const refreshPreview = async (index: number) => {
+    await document.fonts.ready;
     const dataUrl = await renderQuote(quotes[index], author, templates[index]);
     const updated = [...previews];
     updated[index] = dataUrl;
@@ -322,6 +323,7 @@ export default function App() {
   };
 
   const changeTemplate = async (index: number, templateId: number) => {
+    await document.fonts.ready;
     const updated = [...templates];
     updated[index] = templateId;
     setTemplates(updated);
